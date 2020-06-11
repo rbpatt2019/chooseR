@@ -1,0 +1,5 @@
+R/main.R
+^renv$
+^renv\.lock$
+^packrat/
+^\.Rprofile$

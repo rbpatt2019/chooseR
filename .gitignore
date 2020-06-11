@@ -1,0 +1,5 @@
+*.swp
+results/
+renv/library/
+renv/staging/
+.DS_Store
