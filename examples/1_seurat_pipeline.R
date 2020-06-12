@@ -93,10 +93,16 @@ scores <- purrr::map(
   paste0(results_path, "silhouette_grouped_", resolutions, ".rds"),
   readRDS
 )
-scores <- dplyr::bind_rows(scores)
+scores <- dplyr::bind_rows(scores) %>%
+  dplyr::group_by(res) %>%
+  dplyr::mutate("n_clusters" = dplyr::n()) %>%
+  dplyr::ungroup()
 meds <- scores %>%
   dplyr::group_by(res) %>%
-  dplyr::summarise("boot" = list(boot_median(avg_sil))) %>%
+  dplyr::summarise(
+    "boot" = list(boot_median(avg_sil)),
+    "n_clusters" = mean(n_clusters)
+  ) %>%
   tidyr::unnest_wider(boot)
 
 writexl::write_xlsx(meds, paste0(results_path, "median_ci.xlsx"))
@@ -104,7 +110,11 @@ writexl::write_xlsx(meds, paste0(results_path, "median_ci.xlsx"))
 # Find thresholds
 threshold <- max(meds$low_med)
 choice <- as.character(
-  meds %>% dplyr::filter(med >= threshold) %>% tail(n = 1) %>% dplyr::pull(res)
+  meds %>%
+  dplyr::filter(med >= threshold) %>%
+  dplyr::arrange(n_clusters) %>%
+  tail(n = 1) %>%
+  dplyr::pull(res)
 )
 
 # And plot!
