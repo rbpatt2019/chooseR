@@ -2,4 +2,5 @@
 results/
 renv/library/
 renv/staging/
+renv/.gitignore
 .DS_Store
